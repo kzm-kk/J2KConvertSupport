@@ -1,0 +1,37 @@
+<idea-plugin>
+    <id>org.example.J2KConvertSupport</id>
+    <name>J2KConvertSupport</name>
+    <vendor email="kazumax.0308of@ca.info.hiroshima-cu.ac.jp" url="http://www.yourcompany.com">YourCompany</vendor>
+
+    <description><![CDATA[
+    Enter short description for your plugin here.<br>
+    <em>most HTML tags may be used</em>
+    ]]></description>
+
+    <!-- please see https://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
+         on how to target different products -->
+    <depends>com.intellij.modules.platform</depends>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <!-- Add your extensions here -->
+
+        <toolWindow id="Sample Calendar" secondary="true" anchor="right"
+                    factoryClass="MyToolWindowFactory"/>
+
+        <toolWindow id="Analyser" secondary="true" anchor="right"
+                    factoryClass="AnalyzerFactory"/>
+
+        <editorTabColorProvider implementation="TabColorExtensionImpl" />
+
+
+    </extensions>
+
+    <actions>
+        <!-- Add your actions here -->
+
+        <action id="FileSelectAction" class="FileSelectAction" text="Selection">
+            <add-to-group group-id="ToolsMenu" anchor="first"/>
+        </action>
+
+    </actions>
+</idea-plugin>
