@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>org.example.J2KConvertSupport</id>
     <name>J2KConvertSupport</name>
-    <vendor email="kazumax.0308of@ca.info.hiroshima-cu.ac.jp" url="http://www.yourcompany.com">YourCompany</vendor>
+    <vendor email="kazumax.0308of@ca.info.hiroshima-cu.ac.jp" url="https://github.com/kzm-kk/J2KConvertSupport">Kazuma Kouno</vendor>
 
     <description><![CDATA[
     Enter short description for your plugin here.<br>
@@ -28,6 +28,7 @@
 
     <actions>
         <!-- Add your actions here -->
+
 
         <action id="FileSelectAction" class="FileSelectAction" text="Selection">
             <add-to-group group-id="ToolsMenu" anchor="first"/>

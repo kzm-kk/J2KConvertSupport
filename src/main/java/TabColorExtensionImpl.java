@@ -17,7 +17,7 @@ public class TabColorExtensionImpl implements EditorTabColorProvider {
         } else if ("xml".equals(defaultExtension)) {
             return JBColor.BLUE;
         } else if ("java".equals(defaultExtension)) {
-            dataStore.classname = virtualFile.getName();
+            CheckingGui.setClassname(virtualFile.getName().split(".java")[0]);
             return JBColor.YELLOW;
         }
         return null;
