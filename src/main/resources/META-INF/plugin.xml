@@ -18,7 +18,7 @@
         <toolWindow id="Sample Calendar" secondary="true" anchor="right"
                     factoryClass="MyToolWindowFactory"/>
 
-        <toolWindow id="Analyser" secondary="true" anchor="right"
+        <toolWindow id="Analyzer" secondary="true" anchor="right"
                     factoryClass="AnalyzerFactory"/>
 
         <editorTabColorProvider implementation="TabColorExtensionImpl" />
