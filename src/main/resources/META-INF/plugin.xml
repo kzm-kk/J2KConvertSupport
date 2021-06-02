@@ -15,9 +15,6 @@
     <extensions defaultExtensionNs="com.intellij">
         <!-- Add your extensions here -->
 
-        <toolWindow id="Sample Calendar" secondary="true" anchor="right"
-                    factoryClass="MyToolWindowFactory"/>
-
         <toolWindow id="Analyzer" secondary="true" anchor="right"
                     factoryClass="AnalyzerFactory"/>
 
@@ -29,10 +26,6 @@
     <actions>
         <!-- Add your actions here -->
 
-
-        <action id="FileSelectAction" class="FileSelectAction" text="Selection">
-            <add-to-group group-id="ToolsMenu" anchor="first"/>
-        </action>
-
+        <action id="AnalyzeAction" class="AnalyzeAction" text="AnalyzeAction"/>
     </actions>
 </idea-plugin>

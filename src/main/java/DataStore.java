@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class dataStore {
+public class DataStore {
     public static ArrayList<String> memory_classlibrary;
     public static HashMap<String, ArrayList<ImportDeclaration>> memory_import;
     public static ArrayList<String> memory_classname;

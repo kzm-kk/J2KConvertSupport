@@ -1,9 +1,9 @@
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.wm.ToolWindow;
-import javax.swing.*;
-import java.io.IOException;
+import com.intellij.openapi.actionSystem.*;
+import com.intellij.openapi.ui.SimpleToolWindowPanel;
 
-public class CheckingGui{
+import javax.swing.*;
+
+public class CheckingGui extends SimpleToolWindowPanel {
     private static String classname = "";
     public static void setClassname(String name){
         classname = name;
@@ -11,33 +11,26 @@ public class CheckingGui{
     public static String getClassname(){
         return classname;
     }
-    private JButton clearButton;
     private JPanel panel;
     private JTextArea output;
-    private final VisitorTools analyzer = new VisitorTools();
 
-    public CheckingGui(Project project,ToolWindow toolWindow) {
+
+    public CheckingGui() {
+        super(true,true);
         output.setEditable(false);
-
-        clearButton.addActionListener(e -> {
-            try {
-                dataStore.init();
-                VisitorTools.visitorTools(project);
-                analyzer.judge_warning(getClassname());
-                output.setText(analyzer.getStacktext());
-
-            } catch (IOException ioException) {
-                ioException.printStackTrace();
-            }
-        });
+        setToolbar(createToolbarPanel());
+        setContent(panel);
     }
 
+    private JComponent createToolbarPanel() {
+        final DefaultActionGroup actionGroup = new DefaultActionGroup();
+        actionGroup.add(new AnalyzeAction());
+        final ActionToolbar actionToolbar = ActionManager.getInstance().createActionToolbar("AndroidDrawableViewer", actionGroup, true);
+        return actionToolbar.getComponent();
 
-    public JPanel getContent() {
-        return panel;
     }
 
-
-
+    public void setOutput(String text){
+        output.setText(text);
+    }
 }
-

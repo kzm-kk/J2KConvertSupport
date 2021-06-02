@@ -26,7 +26,7 @@ public class VisitorTools {
         stacktext = stacktext.concat(text+"\n");
     }
     
-    public String getStacktext(){
+    public static String getStacktext(){
         return stacktext;
     }
 
@@ -50,7 +50,7 @@ public class VisitorTools {
         }
     }
 
-    public void judge_warning(String classname){
+    public static void judge_warning(String classname){
             setStacktext("\ncheck start:"+classname+"\n");
             fullcheck_import(classname);
             check_initialize2(classname);
@@ -61,30 +61,31 @@ public class VisitorTools {
             judge_case5and7(classname, "case5");
             judge_case5and7(classname, "case7");
             setStacktext("check finished:"+classname+"\n");
+
     }
 
     public static void judge_case1(String key){
         setStacktext("check start:case1\n");
-        if(dataStore.memory_classfield.get(key) != null) {
+        if(DataStore.memory_classfield.get(key) != null) {
             boolean already_warning_interface = false;
             boolean already_warning_superclass = false;
-            for (FieldDeclaration field : dataStore.memory_classfield.get(key)) {
+            for (FieldDeclaration field : DataStore.memory_classfield.get(key)) {
                 int size = field.getVariables().size();
                 for (int i = 0; i < size; i++) {
                     String extend_field = field.getVariable(i).getNameAsString();
                     //implementsの確認、再帰関数使用
 
-                    if (dataStore.memory_implement.get(key) != null) {
-                        for (String name_interface : dataStore.memory_implement.get(key)) {
+                    if (DataStore.memory_implement.get(key) != null) {
+                        for (String name_interface : DataStore.memory_implement.get(key)) {
                             already_warning_interface = check_import(name_interface, already_warning_interface);
                             if (!check_import(name_interface, already_warning_interface)) check_ImplementField(name_interface, extend_field);
                         }
                     }
 
                     //extendsの確認、再帰関数使用
-                    if (dataStore.memory_extend.get(key) != null) {
-                        already_warning_superclass = check_import(dataStore.memory_extend.get(key), already_warning_superclass);
-                        if (!check_import(dataStore.memory_extend.get(key), already_warning_superclass)) check_ExtendField(dataStore.memory_extend.get(key), extend_field);
+                    if (DataStore.memory_extend.get(key) != null) {
+                        already_warning_superclass = check_import(DataStore.memory_extend.get(key), already_warning_superclass);
+                        if (!check_import(DataStore.memory_extend.get(key), already_warning_superclass)) check_ExtendField(DataStore.memory_extend.get(key), extend_field);
                     }
                 }
             }
@@ -94,8 +95,8 @@ public class VisitorTools {
 
     public static void judge_case2(String key){
         setStacktext("check start:case2\n");
-        if(dataStore.memory_classmethod.get(key) != null) {
-            for (MethodDeclaration detail : dataStore.memory_classmethod.get(key)) {
+        if(DataStore.memory_classmethod.get(key) != null) {
+            for (MethodDeclaration detail : DataStore.memory_classmethod.get(key)) {
                 //get/set探す部分
                 String methodname = detail.getNameAsString();
                 String cut_field = "";
@@ -131,10 +132,10 @@ public class VisitorTools {
 
     public static void judge_case3(String key){
         setStacktext("check start:case3\n");
-        if(dataStore.memory_innerclass.get(key) != null) {
-            for (String inner : dataStore.memory_innerclass.get(key)) {
-                if (dataStore.memory_classmethod.get(inner) == null) break;
-                for (MethodDeclaration md : dataStore.memory_classmethod.get(inner)) {
+        if(DataStore.memory_innerclass.get(key) != null) {
+            for (String inner : DataStore.memory_innerclass.get(key)) {
+                if (DataStore.memory_classmethod.get(inner) == null) break;
+                for (MethodDeclaration md : DataStore.memory_classmethod.get(inner)) {
                     NodeList modifiers = md.getModifiers();
                     boolean flag = false;
                     int mod_size = modifiers.size();
@@ -147,7 +148,7 @@ public class VisitorTools {
                         }
                     }
                     if (flag) {
-                        for (MethodDeclaration enclosing : dataStore.memory_classmethod.get(key)) {
+                        for (MethodDeclaration enclosing : DataStore.memory_classmethod.get(key)) {
                             VoidVisitor<?> visitor = new Checking_Case3(name);
                             enclosing.accept(visitor, null);//visitorを利用して捜索と警告を両方行う
                         }
@@ -160,7 +161,7 @@ public class VisitorTools {
 
     public static void judge_case5and7(String key, String mode){
         setStacktext("check start:" + mode+"\n");
-            List<MethodDeclaration> judge_array = dataStore.memory_classmethod.get(key);//今のクラスのフィールド取得
+            List<MethodDeclaration> judge_array = DataStore.memory_classmethod.get(key);//今のクラスのフィールド取得
             if(judge_array != null) {
                 for (MethodDeclaration detail:judge_array) {//フィールドを１つずつ見る
 
@@ -182,8 +183,8 @@ public class VisitorTools {
     }
 
     public static void check_ExtendField(String origin, String extend_field){
-        if(dataStore.memory_classfield.get(origin) != null){
-            for(FieldDeclaration field:dataStore.memory_classfield.get(origin)){
+        if(DataStore.memory_classfield.get(origin) != null){
+            for(FieldDeclaration field: DataStore.memory_classfield.get(origin)){
                 int size = field.getVariables().size();
                 for (int i = 0; i < size; i++) {
                     String origin_field = field.getVariable(i).getNameAsString();
@@ -195,15 +196,15 @@ public class VisitorTools {
                     }
                 }
             }}
-        if(dataStore.memory_extend.get(origin) != null) check_ExtendField(dataStore.memory_extend.get(origin), extend_field);
-        if(dataStore.memory_implement.get(origin) != null){
-            for(String key:dataStore.memory_implement.get(origin)) check_ImplementField(key, extend_field);
+        if(DataStore.memory_extend.get(origin) != null) check_ExtendField(DataStore.memory_extend.get(origin), extend_field);
+        if(DataStore.memory_implement.get(origin) != null){
+            for(String key: DataStore.memory_implement.get(origin)) check_ImplementField(key, extend_field);
         }
     }
 
     public static void check_ImplementField(String origin, String implement_field){
-        if(dataStore.memory_classfield.get(origin) != null) {
-            for (FieldDeclaration field : dataStore.memory_classfield.get(origin)) {
+        if(DataStore.memory_classfield.get(origin) != null) {
+            for (FieldDeclaration field : DataStore.memory_classfield.get(origin)) {
                 int size = field.getVariables().size();
                 for (int i = 0; i < size; i++) {
                     String origin_field = field.getVariable(i).getNameAsString();
@@ -216,7 +217,7 @@ public class VisitorTools {
                 }
             }
         }
-        if(dataStore.memory_extend.get(origin) != null) check_ExtendField(origin, implement_field);
+        if(DataStore.memory_extend.get(origin) != null) check_ExtendField(origin, implement_field);
     }
 
     public static boolean search_get(String mode, MethodDeclaration detail){
@@ -250,8 +251,8 @@ public class VisitorTools {
     }
 
     public static boolean match_field(String method, String xxx){
-        if(dataStore.memory_classfield.get(method) != null){
-            for (FieldDeclaration field : dataStore.memory_classfield.get(method)) {
+        if(DataStore.memory_classfield.get(method) != null){
+            for (FieldDeclaration field : DataStore.memory_classfield.get(method)) {
                 int size = field.getVariables().size();
                 for (int i = 0; i < size; i++) {
                     String fieldname = field.getVariable(i).getNameAsString();
@@ -265,7 +266,7 @@ public class VisitorTools {
     }
 
     public static boolean check_ExtendMethod(String origin, String mode){
-        List<MethodDeclaration> check_array = dataStore.memory_classmethod.get(origin);
+        List<MethodDeclaration> check_array = DataStore.memory_classmethod.get(origin);
         boolean found = false;
         if(check_array != null) {
             for(MethodDeclaration detail:check_array) {
@@ -278,11 +279,11 @@ public class VisitorTools {
                 } else break;
             }
         }
-        if(dataStore.memory_extend.get(origin) != null && !found){
-            found = check_ExtendMethod(dataStore.memory_extend.get(origin), mode);
+        if(DataStore.memory_extend.get(origin) != null && !found){
+            found = check_ExtendMethod(DataStore.memory_extend.get(origin), mode);
         }
-        if(dataStore.memory_implement.get(origin) != null && !found){
-            for(String key:dataStore.memory_implement.get(origin)){
+        if(DataStore.memory_implement.get(origin) != null && !found){
+            for(String key: DataStore.memory_implement.get(origin)){
                 found = check_ImplementMethod(key, mode);
                 if(found) break;
             }
@@ -292,7 +293,7 @@ public class VisitorTools {
     }
 
     public static boolean check_ImplementMethod(String origin, String mode){
-        List<MethodDeclaration> check_array = dataStore.memory_classmethod.get(origin);
+        List<MethodDeclaration> check_array = DataStore.memory_classmethod.get(origin);
         boolean found = false;
         if(check_array != null) {
             for(MethodDeclaration detail:check_array) {
@@ -306,8 +307,8 @@ public class VisitorTools {
             }
         }
         while (!found){
-            if(dataStore.memory_extend.get(origin) != null){
-                found = check_ExtendMethod(dataStore.memory_extend.get(origin), mode);
+            if(DataStore.memory_extend.get(origin) != null){
+                found = check_ExtendMethod(DataStore.memory_extend.get(origin), mode);
             } else break;
         }
         //found = check_import(origin, false);
@@ -326,7 +327,7 @@ public class VisitorTools {
 
         @Override
         public void visit(ClassOrInterfaceDeclaration md, Void arg){
-            dataStore.memory_import.put(md.getNameAsString(), Import_list);
+            DataStore.memory_import.put(md.getNameAsString(), Import_list);
             SomeVisitor visitor = new SomeVisitor(md.getNameAsString());
             md.accept(visitor, null);
         }
@@ -347,22 +348,22 @@ public class VisitorTools {
         @Override
         public void visit(ClassOrInterfaceDeclaration md, Void arg){
             if(classname.equals(md.getNameAsString())){
-                dataStore.memory_classname.add(classname);
+                DataStore.memory_classname.add(classname);
                 int size_extend = md.getExtendedTypes().size();
                 int size_implement = md.getImplementedTypes().size();
                 if(size_extend != 0){
-                    dataStore.memory_extend.put(classname, md.getExtendedTypes().get(0).getNameAsString());
+                    DataStore.memory_extend.put(classname, md.getExtendedTypes().get(0).getNameAsString());
                 }
                 if(size_implement != 0){
                     ArrayList<String> names = new ArrayList<>();
                     for(int i = 0; i < size_implement ;i++){
                         names.add(md.getImplementedTypes(i).getNameAsString());
                     }
-                    dataStore.memory_implement.put(classname, names);
+                    DataStore.memory_implement.put(classname, names);
                 }
 
                 fieldDeclarations = md.getFields();
-                dataStore.memory_classfield.put(classname, fieldDeclarations);
+                DataStore.memory_classfield.put(classname, fieldDeclarations);
                 //ここから新しいやつ
                 for (FieldDeclaration field : fieldDeclarations) {
                     int size = field.getVariables().size();
@@ -393,17 +394,17 @@ public class VisitorTools {
                         field_data.put(fieldname, data);
                     }
                 }
-                dataStore.memory_field_im.put(classname, field_data);
+                DataStore.memory_field_im.put(classname, field_data);
                 //ここまで
                 methodDeclarations = md.getMethods();
-                dataStore.memory_classmethod.put(classname, methodDeclarations);
-                dataStore.memory_constructor.put(classname, md.getConstructors());
+                DataStore.memory_classmethod.put(classname, methodDeclarations);
+                DataStore.memory_constructor.put(classname, md.getConstructors());
                 super.visit(md, arg);
             } else {
-                if(dataStore.memory_innerclass.get(classname) == null) inner_list = new ArrayList<>();
-                else inner_list = dataStore.memory_innerclass.get(classname);
+                if(DataStore.memory_innerclass.get(classname) == null) inner_list = new ArrayList<>();
+                else inner_list = DataStore.memory_innerclass.get(classname);
                 inner_list.add(md.getNameAsString());
-                dataStore.memory_innerclass.put(classname, inner_list);
+                DataStore.memory_innerclass.put(classname, inner_list);
                 SomeVisitor visitor = new SomeVisitor(md.getNameAsString());
                 md.accept(visitor, null);
             }
@@ -447,8 +448,8 @@ public class VisitorTools {
         public void visit(MethodCallExpr md, Void arg){
 
             boolean flag = false;
-            if(mode.equals("case5"))flag = md.getScope().isPresent() ;
-            else if(mode.equals("case7") && !md.getScope().isPresent())
+            if(mode.equals("case5"))flag = md.getScope().isEmpty();
+            else if(mode.equals("case7") && md.getScope().isPresent())
                 flag = md.getScope().get().isThisExpr();
             if(flag) {
                 String methodname = md.getNameAsString();
@@ -456,7 +457,7 @@ public class VisitorTools {
                 if (methodname.matches("get[A-Z].*")) {
                     if (md.getArguments() == null) {
                         boolean break_flag = false;
-                        for(MethodDeclaration mine:dataStore.memory_classmethod.get(classname)) {
+                        for(MethodDeclaration mine: DataStore.memory_classmethod.get(classname)) {
                             String mine_name = mine.getNameAsString();
                             String mine_type = mine.getTypeAsString();
                             int mine_sizeParameter = mine.getParameters().size();
@@ -468,15 +469,15 @@ public class VisitorTools {
 
                         boolean warning_flag = false;
                         //implementsの確認、再帰関数使用
-                        if (dataStore.memory_implement.get(classname) != null) {
-                            for (String name_interface : dataStore.memory_implement.get(classname)) {
+                        if (DataStore.memory_implement.get(classname) != null) {
+                            for (String name_interface : DataStore.memory_implement.get(classname)) {
                                 warning_flag = check_ImplementMethod(name_interface, mode);
                             }
                         }
 
                         //extendsの確認、再帰関数使用
-                        if (dataStore.memory_extend.get(classname) != null && !warning_flag) {
-                            warning_flag = check_ExtendMethod(dataStore.memory_extend.get(classname), mode);
+                        if (DataStore.memory_extend.get(classname) != null && !warning_flag) {
+                            warning_flag = check_ExtendMethod(DataStore.memory_extend.get(classname), mode);
                         }
                         if(!break_flag || warning_flag)  {
                                 setStacktext(md.getRange().get().toString());
@@ -491,7 +492,7 @@ public class VisitorTools {
                         String cut_field = methodname.split("set")[1].toLowerCase();
                         if (argument.equals(looking_argument) && cut_field.equals(argument)) {
                             boolean break_flag = false;
-                            for(MethodDeclaration mine:dataStore.memory_classmethod.get(classname)) {
+                            for(MethodDeclaration mine: DataStore.memory_classmethod.get(classname)) {
                                 String mine_name = mine.getNameAsString();
                                 String mine_type = mine.getTypeAsString();
                                 int mine_sizeParameter = mine.getParameters().size();
@@ -507,14 +508,14 @@ public class VisitorTools {
 
                             boolean warning_flag = false;
                             //implementsの確認、再帰関数使用
-                            if (dataStore.memory_implement.get(classname) != null) {
-                                for (String name_interface : dataStore.memory_implement.get(classname)) {
+                            if (DataStore.memory_implement.get(classname) != null) {
+                                for (String name_interface : DataStore.memory_implement.get(classname)) {
                                     warning_flag = check_ImplementMethod(name_interface, mode);
                                 }
                             }
                             //extendsの確認、再帰関数使用
-                            if (dataStore.memory_extend.get(classname) != null && !warning_flag) {
-                                warning_flag = check_ExtendMethod(dataStore.memory_extend.get(classname), mode);
+                            if (DataStore.memory_extend.get(classname) != null && !warning_flag) {
+                                warning_flag = check_ExtendMethod(DataStore.memory_extend.get(classname), mode);
                             }
                             if(!break_flag || warning_flag) {
 
@@ -530,14 +531,14 @@ public class VisitorTools {
     }
 
     public static void check_initialize2(String classname){
-        HashMap<String,HashMap<String,Object>> field_list2 = dataStore.memory_field_im.get(classname);
+        HashMap<String,HashMap<String,Object>> field_list2 = DataStore.memory_field_im.get(classname);
         if(field_list2 != null){
             setStacktext("start field checking\n");
             for(String fieldname : field_list2.keySet()){
                 HashMap<String, Object> detail = field_list2.get(fieldname);
                 if((boolean)detail.get("nullable")){
                     boolean flag = true;
-                    List<ConstructorDeclaration> CdList = dataStore.memory_constructor.get(classname);
+                    List<ConstructorDeclaration> CdList = DataStore.memory_constructor.get(classname);
                     if(CdList != null) {
                         for (ConstructorDeclaration constructorDeclaration : CdList) {
                             check_constructor visitor = new check_constructor(classname,fieldname);
@@ -545,14 +546,14 @@ public class VisitorTools {
                                 flag = constructorDeclaration.accept(visitor, null);
                         }
                     }
-                    List<MethodDeclaration> MdList = dataStore.memory_classmethod.get(classname);
+                    List<MethodDeclaration> MdList = DataStore.memory_classmethod.get(classname);
                     if(MdList != null) {
                         for (MethodDeclaration methodDeclaration: MdList) {
                             check_nullable visitor = new check_nullable(classname, fieldname);
                             methodDeclaration.accept(visitor, null);
                         }
                     }
-                    List<FieldDeclaration> FdList = dataStore.memory_classfield.get(classname);
+                    List<FieldDeclaration> FdList = DataStore.memory_classfield.get(classname);
                     if(FdList != null && !(boolean)detail.get("nullable")) {
                         for (FieldDeclaration fieldDeclaration : FdList) {
                             check_nullable visitor = new check_nullable(classname, fieldname);
@@ -575,13 +576,13 @@ public class VisitorTools {
     }
 
     public static void check_allparameter(String classname){
-        HashMap<String,HashMap<String,Object>> field_list2 = dataStore.memory_field_im.get(classname);
+        HashMap<String,HashMap<String,Object>> field_list2 = DataStore.memory_field_im.get(classname);
         if(field_list2 != null){
             setStacktext("start parameter checking\n");
             for(String fieldname : field_list2.keySet()){
                 HashMap<String, Object> detail = field_list2.get(fieldname);
                 if(!(boolean)detail.get("nullable")){
-                    List<MethodDeclaration> MdList = dataStore.memory_classmethod.get(classname);
+                    List<MethodDeclaration> MdList = DataStore.memory_classmethod.get(classname);
                     if(MdList != null) {
                         for(MethodDeclaration methodDeclaration: MdList){
                             for(Parameter parameter :methodDeclaration.getParameters()) {
@@ -598,7 +599,7 @@ public class VisitorTools {
     }
 
     public static void check_initialize(String classname){
-            List<FieldDeclaration> field_list = dataStore.memory_classfield.get(classname);
+            List<FieldDeclaration> field_list = DataStore.memory_classfield.get(classname);
             if(field_list != null) {
                 setStacktext("start field checking\n");
                 for (FieldDeclaration field : field_list) {
@@ -606,7 +607,7 @@ public class VisitorTools {
                     for (int i = 0; i < size; i++) {
                         if (!field.getVariable(i).getInitializer().isPresent()) {
                             boolean flag = true;
-                            List<ConstructorDeclaration> CdList = dataStore.memory_constructor.get(classname);
+                            List<ConstructorDeclaration> CdList = DataStore.memory_constructor.get(classname);
                             if(CdList != null) {
                                 for (ConstructorDeclaration constructorDeclaration : CdList) {
                                     check_constructor visitor = new check_constructor(classname, field.getVariable(i).getNameAsString());
@@ -642,12 +643,12 @@ public class VisitorTools {
         @Override
         public Boolean visit(AssignExpr md, Void arg){
             if(md.getTarget().toString().equals(fieldname)){
-                dataStore.memory_field_im.get(classname).get(fieldname).put("nullable",true);
-                dataStore.memory_field_im.get(classname).get(fieldname).put("need_fix",false);
+                DataStore.memory_field_im.get(classname).get(fieldname).put("nullable",true);
+                DataStore.memory_field_im.get(classname).get(fieldname).put("need_fix",false);
                 return false;
             }
-            dataStore.memory_field_im.get(classname).get(fieldname).put("nullable",false);
-            dataStore.memory_field_im.get(classname).get(fieldname).put("need_fix",true);
+            DataStore.memory_field_im.get(classname).get(fieldname).put("nullable",false);
+            DataStore.memory_field_im.get(classname).get(fieldname).put("need_fix",true);
             return true;
         }
     }
@@ -667,14 +668,14 @@ public class VisitorTools {
             if(md.getTarget().toString().equals(fieldname)){
                 if(md.getOperator().name().equals("ASSIGN")){
                     if(md.getValue().toString().equals("null")){
-                        dataStore.memory_field_im.get(classname).get(fieldname).put("nullable",true);
-                        dataStore.memory_field_im.get(classname).get(fieldname).put("need_fix",false);
+                        DataStore.memory_field_im.get(classname).get(fieldname).put("nullable",true);
+                        DataStore.memory_field_im.get(classname).get(fieldname).put("need_fix",false);
                     } else flag = true;
                 } else flag = true;
             } else flag = true;
             if(flag) {
-                dataStore.memory_field_im.get(classname).get(fieldname).put("nullable", false);
-                dataStore.memory_field_im.get(classname).get(fieldname).put("need_fix", true);
+                DataStore.memory_field_im.get(classname).get(fieldname).put("nullable", false);
+                DataStore.memory_field_im.get(classname).get(fieldname).put("need_fix", true);
             }
         }
     }
@@ -696,7 +697,7 @@ public class VisitorTools {
         public void visit(AssignExpr md, Void arg){
             if(md.getValue().toString().equals(parameter)){
                 if(md.getTarget().toString().equals(fieldname)){
-                    if((boolean)dataStore.memory_field_im.get(classname).get(fieldname).get("need_fix")){
+                    if((boolean) DataStore.memory_field_im.get(classname).get(fieldname).get("need_fix")){
                         setStacktext(range+"\nparameter:"+parameter+" will be changed nullable parameter after conversion.\n" +
                                 "You should use @Notnull annotation.\n");
                     }
@@ -707,7 +708,7 @@ public class VisitorTools {
     }
 
     public static boolean check_import(String checkname, boolean already){
-        for(String classname:dataStore.memory_classname){
+        for(String classname: DataStore.memory_classname){
             if(classname.equals(checkname)){
                 return false;
             }
@@ -718,32 +719,32 @@ public class VisitorTools {
 
     public static void fullcheck_import(String checkname){
         boolean flag = true;
-        if(dataStore.memory_implement.get(checkname) != null) {
-            for (String implement : dataStore.memory_implement.get(checkname)) {
+        if(DataStore.memory_implement.get(checkname) != null) {
+            for (String implement : DataStore.memory_implement.get(checkname)) {
                 flag = true;
-                for (String classname : dataStore.memory_classname) {
+                for (String classname : DataStore.memory_classname) {
                     if (classname.equals(implement)) {
                         flag = false;
                         break;
                     }
                 }
-                if (flag && !duplicate_check(implement)) dataStore.memory_classlibrary.add(implement);
+                if (flag && !duplicate_check(implement)) DataStore.memory_classlibrary.add(implement);
             }
         }
         flag = true;
-        String extend = dataStore.memory_extend.get(checkname);
-        for(String classname:dataStore.memory_classname){
+        String extend = DataStore.memory_extend.get(checkname);
+        for(String classname: DataStore.memory_classname){
             if(classname.equals(extend)) {
                 flag = false;
             }
         }
         if(extend == null) flag = false;
-        if(flag && !duplicate_check(extend)) dataStore.memory_classlibrary.add(extend);
+        if(flag && !duplicate_check(extend)) DataStore.memory_classlibrary.add(extend);
     }
 
     public static boolean duplicate_check(String name){
-        if(dataStore.memory_classlibrary != null) {
-            for (String library : dataStore.memory_classlibrary) {
+        if(DataStore.memory_classlibrary != null) {
+            for (String library : DataStore.memory_classlibrary) {
                 if(library == null) break;
                 if (library.equals(name)) return true;
             }
