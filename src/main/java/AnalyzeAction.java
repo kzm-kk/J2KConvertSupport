@@ -20,7 +20,9 @@ public class AnalyzeAction extends AnAction {
         try {
             DataStore.init();
             VisitorTools.visitorTools(e.getProject());
-            VisitorTools.judge_warning(CheckingGui.getClassname());
+            assert vf != null;
+            GetClassFromFile gcff = new GetClassFromFile(vf.getPath());
+            VisitorTools.judge_warning(gcff.getClassname());
             AnalyzerFactory.myToolWindow.setOutput(VisitorTools.getStacktext());
         } catch (IOException ioException) {
             ioException.printStackTrace();

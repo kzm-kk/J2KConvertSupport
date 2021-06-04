@@ -50,8 +50,9 @@ public class VisitorTools {
         }
     }
 
-    public static void judge_warning(String classname){
-            setStacktext("\ncheck start:"+classname+"\n");
+    public static void judge_warning(ArrayList<String> arrayList){
+        for(String classname:arrayList) {
+            setStacktext("\ncheck start:" + classname + "\n");
             fullcheck_import(classname);
             check_initialize2(classname);
             check_allparameter(classname);
@@ -60,7 +61,8 @@ public class VisitorTools {
             judge_case3(classname);
             judge_case5and7(classname, "case5");
             judge_case5and7(classname, "case7");
-            setStacktext("check finished:"+classname+"\n");
+            setStacktext("check finished:" + classname + "\n");
+        }
 
     }
 
