@@ -50,9 +50,10 @@ public class VisitorTools {
         }
     }
 
-    public static void judge_warning(ArrayList<String> arrayList){
+    public static void judge_warning(String filename, ArrayList<String> arrayList){
+        setStacktext("analyzed file:"+ filename + "\n");
         for(String classname:arrayList) {
-            setStacktext("\ncheck start:" + classname + "\n");
+            setStacktext("check start:" + classname + "\n");
             fullcheck_import(classname);
             check_initialize2(classname);
             check_allparameter(classname);

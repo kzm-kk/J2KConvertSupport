@@ -16,13 +16,13 @@ public class AnalyzeAction extends AnAction {
     public void actionPerformed(AnActionEvent e) {
         // TODO: insert action logic here
         VirtualFile vf = e.getData(CommonDataKeys.VIRTUAL_FILE);
-        if(vf != null)CheckingGui.setClassname(vf.getName().split(".java")[0]);
+        //if(vf != null)CheckingGui.setClassname(vf.getName().split(".java")[0]);
         try {
             DataStore.init();
             VisitorTools.visitorTools(e.getProject());
             assert vf != null;
             GetClassFromFile gcff = new GetClassFromFile(vf.getPath());
-            VisitorTools.judge_warning(gcff.getClassname());
+            VisitorTools.judge_warning(vf.getName(),gcff.getClassname());
             AnalyzerFactory.myToolWindow.setOutput(VisitorTools.getStacktext());
         } catch (IOException ioException) {
             ioException.printStackTrace();
