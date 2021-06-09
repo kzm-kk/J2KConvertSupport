@@ -1,4 +1,5 @@
 import com.github.javaparser.ParseResult;
+import com.github.javaparser.Range;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.ImportDeclaration;
 import com.github.javaparser.ast.NodeList;
@@ -16,12 +17,14 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Random;
 
 public class VisitorTools {
     
     private static String stacktext = new String();
     private static FilePath filePath = new FilePath();
-    
+    private static FixMarker marker;
+
     public static void setStacktext(String text){
         stacktext = stacktext.concat(text+"\n");
     }
@@ -41,6 +44,7 @@ public class VisitorTools {
         SourceRoot root = new SourceRoot(Paths.get(path_root));
         List<ParseResult<CompilationUnit>> cu2 = root.tryToParse("");
         resetstack();
+        marker = new FixMarker(project, filePath);
         //情報収集フェーズ
         for (ParseResult<CompilationUnit> compilationUnitParseResult : cu2) {
             VoidVisitor<?> visitor = new FirstVisitor();
@@ -65,6 +69,11 @@ public class VisitorTools {
             setStacktext("check finished:" + classname + "\n");
         }
 
+    }
+
+    private static void UsingMarker(Range range){
+        setStacktext(range.toString());
+        marker.LineMarker(range);
     }
 
     public static void judge_case1(String key){
@@ -108,7 +117,7 @@ public class VisitorTools {
                     cut_field = methodname.split("get")[1].toLowerCase();
                 if (!cut_field.equals("")) {
                     if (!match_field(key, cut_field)) {
-                        setStacktext(detail.getRange().get().toString());
+                        UsingMarker(detail.getRange().get());
                         setStacktext("method \"" + methodname + "\" is existing getter" +
                                 " but field \"" + cut_field + "\" is not existing.");
                         setStacktext("You should change methodname from "
@@ -120,7 +129,7 @@ public class VisitorTools {
                     cut_field = methodname.split("set")[1].toLowerCase();
                 if (!cut_field.equals("")) {
                     if (!match_field(key, cut_field)) {
-                        setStacktext(detail.getRange().get().toString());
+                        UsingMarker(detail.getRange().get());
                         setStacktext("method \"" + methodname + "\" is existing setter" +
                                 " but field \"" + cut_field + "\" is not existing.");
                         setStacktext("You should change methodname from "
@@ -388,7 +397,7 @@ public class VisitorTools {
                         //need_fix
                         data.put("need_fix", false);
                         //range
-                        data.put("range",field.getVariable(i).getRange().get().toString());
+                        data.put("range",field.getVariable(i).getRange().get());
                         //istype
                         if(field.getVariable(i).getType().isPrimitiveType()) data.put("IsType", 0);
                         else if(field.getVariable(i).getType().isReferenceType()) data.put("IsType", 1);
@@ -425,7 +434,7 @@ public class VisitorTools {
         public void visit(MethodCallExpr md, Void arg){
             String calling = md.getNameAsString();
             if(calling.equals(methodname)){
-                setStacktext(md.getRange().get().toString());
+                UsingMarker(md.getRange().get());
                 setStacktext(methodname + " is private method. " +
                         "This code can cause an error after converting to Kotlin.\n");
             }
@@ -483,9 +492,9 @@ public class VisitorTools {
                             warning_flag = check_ExtendMethod(DataStore.memory_extend.get(classname), mode);
                         }
                         if(!break_flag || warning_flag)  {
-                                setStacktext(md.getRange().get().toString());
-                                setStacktext("This code may give the following error after converting to Kotlin: val cannnot reassigned.");
-                                setStacktext("It is recommended to rename the argument \"" + looking_argument + "\" in method \"" + this.methodname + "\".\n");
+                            UsingMarker(md.getRange().get());
+                            setStacktext("This code may give the following error after converting to Kotlin: val cannnot reassigned.");
+                            setStacktext("It is recommended to rename the argument \"" + looking_argument + "\" in method \"" + this.methodname + "\".\n");
                         }
                     }
                 } else if (methodname.matches("set[A-Z].*")) {
@@ -522,9 +531,9 @@ public class VisitorTools {
                             }
                             if(!break_flag || warning_flag) {
 
-                                    setStacktext(md.getRange().get().toString());
-                                    setStacktext("This code may give the following error after converting to Kotlin: val cannnot reassigned.");
-                                    setStacktext("It is recommended to rename the argument \"" + looking_argument + "\" in method \"" + this.methodname + "\".\n");
+                                UsingMarker(md.getRange().get());
+                                setStacktext("This code may give the following error after converting to Kotlin: val cannnot reassigned.");
+                                setStacktext("It is recommended to rename the argument \"" + looking_argument + "\" in method \"" + this.methodname + "\".\n");
                             }
                         }
                     }
@@ -565,7 +574,7 @@ public class VisitorTools {
                     }
                     if(flag && !(boolean)detail.get("nullable")){
                         if ((int)detail.get("IsType") != Integer.parseInt("0")) {
-                            setStacktext(detail.get("range").toString());
+                            UsingMarker((Range)detail.get("range"));
                             setStacktext("Field \"" + fieldname + "\" doesn't have initializer.");
 
                             setStacktext("You should use modifer \"lateinit\" after convert to Kotlin.\n");
@@ -599,39 +608,6 @@ public class VisitorTools {
             }
             setStacktext("finished parameter checking\n");
         }
-    }
-
-    public static void check_initialize(String classname){
-            List<FieldDeclaration> field_list = DataStore.memory_classfield.get(classname);
-            if(field_list != null) {
-                setStacktext("start field checking\n");
-                for (FieldDeclaration field : field_list) {
-                    int size = field.getVariables().size();
-                    for (int i = 0; i < size; i++) {
-                        if (!field.getVariable(i).getInitializer().isPresent()) {
-                            boolean flag = true;
-                            List<ConstructorDeclaration> CdList = DataStore.memory_constructor.get(classname);
-                            if(CdList != null) {
-                                for (ConstructorDeclaration constructorDeclaration : CdList) {
-                                    check_constructor visitor = new check_constructor(classname, field.getVariable(i).getNameAsString());
-                                    if(constructorDeclaration.accept(visitor, null) != null)
-                                        flag = constructorDeclaration.accept(visitor, null);
-                                }
-                            }
-                            if(flag){
-                            setStacktext("line " + field.getRange().get().begin.line);
-                            setStacktext("Field \"" + field.getVariable(i).getNameAsString()
-                                    + "\" doesn't have initializer.");
-                            if (field.getVariable(i).getType().isPrimitiveType())
-                                setStacktext("You should use modifer \"not-null\" after convert to Kotlin\n");
-                            else if (field.getVariable(i).getType().isReferenceType())
-                                setStacktext("You should use modifer \"lateinit\" after convert to Kotlin\n");
-                        }
-                        }
-                    }
-                }
-                setStacktext("finished field checking\n");
-            }
     }
 
     public static class check_constructor extends GenericVisitorAdapter<Boolean,Void> {
