@@ -32,7 +32,6 @@ public class FixMarker {
         int start = positionDecision(document, range.begin.line-1, range.begin.column-1);
         int end = positionDecision(document, range.end.line-1, range.end.column);
 
-        VisitorTools.setStacktext(start + " " + end + "\n");
         if (start != end) {
             RangeHighlighter rangeHighlighter = editor.getMarkupModel().addRangeHighlighter(start, end, HighlighterLayer.FIRST, attr, HighlighterTargetArea.EXACT_RANGE);
             rangeHighlighter.setErrorStripeMarkColor(JBColor.BLUE);
