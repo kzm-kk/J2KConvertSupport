@@ -20,6 +20,7 @@ public class CheckingGui extends SimpleToolWindowPanel {
         output.setEditable(false);
         setToolbar(createToolbarPanel());
         setContent(panel);
+        DataStore.StartUp();
     }
 
     private JComponent createToolbarPanel() {

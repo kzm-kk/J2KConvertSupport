@@ -13,6 +13,20 @@ public class AnalyzeAction extends AnAction {
     }
 
     @Override
+    public void update(AnActionEvent e) {
+        VirtualFile vf = e.getData(CommonDataKeys.VIRTUAL_FILE);
+        boolean active = vf != null && "java".equals(vf.getExtension());
+        if(active){
+            String data = "";
+            if(DataStore.Check_Already_Analyze(vf.getName()))
+                data = DataStore.Get_Analyzed(vf.getName());
+            AnalyzerFactory.myToolWindow.setOutput(data);
+        } else {
+            e.getPresentation().setEnabledAndVisible(active);
+        }
+    }
+
+    @Override
     public void actionPerformed(AnActionEvent e) {
         // TODO: insert action logic here
         VirtualFile vf = e.getData(CommonDataKeys.VIRTUAL_FILE);
@@ -20,9 +34,9 @@ public class AnalyzeAction extends AnAction {
         try {
             DataStore.init();
             VisitorTools.visitorTools(e.getProject());
-            assert vf != null;
             GetClassFromFile gcff = new GetClassFromFile(vf.getPath());
             VisitorTools.judge_warning(vf.getName(),gcff.getClassname());
+            DataStore.Add_Analyzed(vf.getName(), VisitorTools.getStacktext());
             AnalyzerFactory.myToolWindow.setOutput(VisitorTools.getStacktext());
         } catch (IOException ioException) {
             ioException.printStackTrace();

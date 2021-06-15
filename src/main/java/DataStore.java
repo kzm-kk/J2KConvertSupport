@@ -8,6 +8,9 @@ import java.util.HashMap;
 import java.util.List;
 
 public class DataStore {
+    private static ArrayList<String> already_analyzed;
+    private static HashMap<String, String> analyzed_data;
+
     public static ArrayList<String> memory_classlibrary;
     public static HashMap<String, ArrayList<ImportDeclaration>> memory_import;
     public static ArrayList<String> memory_classname;
@@ -18,6 +21,27 @@ public class DataStore {
     public static HashMap<String, ArrayList<String>> memory_innerclass;
     public static HashMap<String, List<ConstructorDeclaration>> memory_constructor;
     public static HashMap<String, HashMap<String, HashMap<String, Object>>> memory_field_im;
+
+    public static void StartUp(){
+        already_analyzed = new ArrayList<>();
+        analyzed_data = new HashMap<>();
+    }
+
+    public static boolean Check_Already_Analyze(String myfilename){
+        for(String filename:already_analyzed){
+            if(filename.equals(myfilename)) return true;
+        }
+        return false;
+    }
+
+    public static void Add_Analyzed(String myfilename,String data){
+        already_analyzed.add(myfilename);
+        analyzed_data.put(myfilename,data);
+    }
+
+    public static String Get_Analyzed(String myfilename){
+        return analyzed_data.get(myfilename);
+    }
 
     public static void init(){
         memory_classlibrary = new ArrayList<>();
