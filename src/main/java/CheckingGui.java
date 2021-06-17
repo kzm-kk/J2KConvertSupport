@@ -4,13 +4,6 @@ import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import javax.swing.*;
 
 public class CheckingGui extends SimpleToolWindowPanel {
-    private static String classname = "";
-    public static void setClassname(String name){
-        classname = name;
-    }
-    public static String getClassname(){
-        return classname;
-    }
     private JPanel panel;
     private JTextArea output;
 

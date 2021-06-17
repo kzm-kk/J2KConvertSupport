@@ -10,6 +10,7 @@ import java.util.List;
 public class DataStore {
     private static ArrayList<String> already_analyzed;
     private static HashMap<String, String> analyzed_data;
+    private static HashMap<String, Long> file_lastmodified;
 
     public static ArrayList<String> memory_classlibrary;
     public static HashMap<String, ArrayList<ImportDeclaration>> memory_import;
@@ -25,6 +26,7 @@ public class DataStore {
     public static void StartUp(){
         already_analyzed = new ArrayList<>();
         analyzed_data = new HashMap<>();
+        file_lastmodified = new HashMap<>();
     }
 
     public static boolean Check_Already_Analyze(String myfilename){
@@ -34,13 +36,25 @@ public class DataStore {
         return false;
     }
 
-    public static void Add_Analyzed(String myfilename,String data){
+    public static void AddAnalyzed(String myfilename, String data){
         already_analyzed.add(myfilename);
         analyzed_data.put(myfilename,data);
     }
 
-    public static String Get_Analyzed(String myfilename){
+    public static String GetAnalyzed(String myfilename){
         return analyzed_data.get(myfilename);
+    }
+
+    public static void setTimeStamp(String myfilename, long modifiedtime){
+        file_lastmodified.put(myfilename, modifiedtime);
+    }
+
+    public static Long getTimeStamp(String myfilename){
+        return file_lastmodified.get(myfilename);
+    }
+
+    public static boolean isModified(String myfilename, long modifiedtime){
+        return file_lastmodified.get(myfilename) > modifiedtime;
     }
 
     public static void init(){
