@@ -6,12 +6,15 @@ import javax.swing.*;
 public class CheckingGui extends SimpleToolWindowPanel {
     private JPanel panel;
     private JTextArea output;
+    private JScrollPane scroller;
 
 
     public CheckingGui() {
         super(true,true);
         output.setEditable(false);
         setToolbar(createToolbarPanel());
+        panel.add(new DataPanel("yes").getDatapanel());
+        panel.add(new DataPanel("yes").getDatapanel());
         setContent(panel);
         DataStore.StartUp();
     }
@@ -27,4 +30,14 @@ public class CheckingGui extends SimpleToolWindowPanel {
     public void setOutput(String text){
         output.setText(text);
     }
+
+    public void setOnPanel(DataPanel dataPanel){
+        //panel.add(new JTextField("ex"));
+        setContent(panel);
+    }
+
+    public void resetPanel(){
+        scroller.removeAll();
+    }
+
 }

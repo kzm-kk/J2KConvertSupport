@@ -43,12 +43,11 @@ public class AnalyzeAction extends AnAction {
         VirtualFile vf = e.getData(CommonDataKeys.VIRTUAL_FILE);
         //if(vf != null)CheckingGui.setClassname(vf.getName().split(".java")[0]);
         try {
-            DataStore.init();
             VisitorTools.visitorTools(e.getProject());
             GetClassFromFile gcff = new GetClassFromFile(vf.getPath());
             VisitorTools.judge_warning(vf.getName(),gcff.getClassname());
             DataStore.AddAnalyzed(vf.getName(), VisitorTools.getStacktext());
-            AnalyzerFactory.myToolWindow.setOutput(VisitorTools.getStacktext());
+            //AnalyzerFactory.myToolWindow.setOutput(VisitorTools.getStacktext());
         } catch (IOException ioException) {
             ioException.printStackTrace();
         }
